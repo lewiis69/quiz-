@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thi trắc nghiệm Pháp luật</title>
+<title>Hệ thống thi trắc nghiệm</title>
 
 <style>
 :root{
@@ -27,72 +27,93 @@ body{
 
 .card{
   background:#fff;
-  border-radius:12px;
+  border-radius:16px;
   padding:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
 }
 
 .hidden{display:none}
 
-h1,h2,h3{margin-top:0}
-
 input{
   width:100%;
-  padding:12px;
+  padding:14px;
   font-size:16px;
-  border-radius:8px;
+  border-radius:12px;
   border:1px solid #ccc;
 }
 
 button{
-  padding:12px;
-  font-size:16px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
   width:100%;
+  padding:14px;
   margin-top:10px;
-}
-
-.primary{background:var(--primary);color:#fff}
-.gray{background:#e5e7eb}
-.correct{background:var(--correct);color:#fff}
-.wrong{background:var(--wrong);color:#fff}
-
-.answers button{
+  border-radius:14px;
+  border:2px solid #cbd5e1;
   background:#f8fafc;
-  border:1px solid #cbd5f5;
+  font-size:16px;
+  cursor:pointer;
+  transition:.2s;
 }
 
-.answers button.selected{
+button:active{transform:scale(.97)}
+
+.primary{
   background:var(--primary);
   color:#fff;
+  border:none;
 }
 
-.nav{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:6px;
-  margin-bottom:12px;
+.answer{
+  text-align:left;
+  animation:fadeIn .2s ease;
 }
 
-.nav div{
-  padding:8px;
-  text-align:center;
-  border-radius:6px;
-  font-size:14px;
-  background:#e5e7eb;
+.answer.selected{
+  border:3px solid var(--primary);
+  background:#eff6ff;
+  font-weight:600;
 }
 
-.nav .done{background:#93c5fd}
-.nav .correct{background:#4ade80}
-.nav .wrong{background:#f87171}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:none}
+}
+
+.shake{
+  animation:shake .3s;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  50%{transform:translateX(5px)}
+  75%{transform:translateX(-5px)}
+  100%{transform:translateX(0)}
+}
 
 .timer{
   font-weight:bold;
   color:#dc2626;
   margin-bottom:10px;
 }
+
+.nav{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+}
+
+.nav div{
+  padding:8px;
+  border-radius:8px;
+  background:#e5e7eb;
+  text-align:center;
+  font-size:14px;
+}
+
+.nav .done{background:#93c5fd}
+.nav .correct{background:#4ade80}
+.nav .wrong{background:#f87171}
 
 @media(max-width:600px){
   .nav{grid-template-columns:repeat(5,1fr)}
@@ -120,9 +141,9 @@ button{
 
 <div class="card">
   <h3 id="qtext"></h3>
-  <div class="answers" id="answers"></div>
+  <div id="answers"></div>
   <button id="nextBtn" class="primary hidden" onclick="next()">Câu tiếp theo</button>
-  <button id="finishBtn" class="correct hidden" onclick="finish()">Hoàn thành bài</button>
+  <button id="finishBtn" class="primary hidden" onclick="finish()">Hoàn thành bài</button>
 </div>
 
 </div>
@@ -132,145 +153,136 @@ button{
 
 </div>
 
+<audio id="clickSound">
+  <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg">
+</audio>
+
 <script>
-/* ===== CÂU HỎI (đủ 30 – giữ nguyên nội dung) ===== */
+/* ====== CÂU HỎI (BẠN DÁN ĐỦ 30 CÂU VÀO ĐÂY) ====== */
 const questions = [
-{q:"Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam?",
-a:["Tập trung dân chủ","Đảng lãnh đạo","Công khai minh bạch","Bình đẳng, đoàn kết dân tộc"],c:2},
-{q:"Cơ quan quyền lực nhà nước cao nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
-a:["Chính phủ","Chủ tịch nước","Quốc hội","Bộ Chính trị"],c:2},
-{q:"Đâu là cơ quan quyền lực nhà nước ở địa phương, đại diện ý chí, nguyện vọng và quyền làm chủ của nhân dân, do nhân dân địa phương bầu ra:",
-a:["Ủy ban nhân dân","Hội đồng nhân dân","Ủy ban Mặt trận Tổ quốc Việt Nam","Tòa án nhân dân"],c:1},
-{q:"Cơ quan nào của Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam thực hiện quyền tư pháp:",
-a:["Bộ Tư pháp","Tòa án nhân dân các cấp","Viện kiểm sát nhân dân các cấp","Ủy ban nhân dân các cấp"],c:1},
-{q:"Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam có chức năng cơ bản là:",
-a:["Bảo đảm trật tự an toàn xã hội","Tổ chức và quản lý nền kinh tế","Thiết lập mối quan hệ ngoại giao","Đối nội và đối ngoại"],c:3},
-/* 👉 bạn có thể tiếp tục dán đủ 30 câu ở đây, logic giữ nguyên */
+{
+  q:"Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam?",
+  a:["Tập trung dân chủ","Đảng lãnh đạo","Công khai minh bạch","Bình đẳng, đoàn kết dân tộc"],
+  c:2
+},
+{
+  q:"Cơ quan quyền lực nhà nước cao nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+  a:["Chính phủ","Chủ tịch nước","Quốc hội","Bộ Chính trị"],
+  c:2
+}
 ];
 
 /* ===== BIẾN ===== */
-let name="", idx=0, answers=[], startTime, timer;
+let name="", idx=0, answers=[];
+let startTime, timer;
 const totalTime = questions.length * 180;
 
 /* ===== START ===== */
 function start(){
-name=document.getElementById("username").value.trim();
-if(!name){alert("Vui lòng nhập tên");return;}
-startTime=Date.now();
-document.getElementById("start").classList.add("hidden");
-document.getElementById("quiz").classList.remove("hidden");
-buildNav();
-load();
-countdown();
+  name=document.getElementById("username").value.trim();
+  if(!name){alert("Vui lòng nhập tên");return;}
+  startTime=Date.now();
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  buildNav();
+  load();
+  countdown();
 }
 
 /* ===== TIMER ===== */
 function countdown(){
-timer=setInterval(()=>{
-let left=totalTime-Math.floor((Date.now()-startTime)/1000);
-document.getElementById("time").innerText=
-`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`;
-if(left<=0){clearInterval(timer);finish(true);}
-},1000);
+  timer=setInterval(()=>{
+    let left=totalTime-Math.floor((Date.now()-startTime)/1000);
+    document.getElementById("time").innerText=
+      Math.floor(left/60)+":"+String(left%60).padStart(2,"0");
+    if(left<=0){clearInterval(timer);finish(true);}
+  },1000);
 }
 
 /* ===== NAV ===== */
 function buildNav(){
-const nav=document.getElementById("nav");
-nav.innerHTML="";
-questions.forEach((_,i)=>{
-let d=document.createElement("div");
-d.innerText=i+1;
-d.onclick=()=>{idx=i;load();}
-nav.appendChild(d);
-});
+  const nav=document.getElementById("nav");
+  nav.innerHTML="";
+  questions.forEach((_,i)=>{
+    let d=document.createElement("div");
+    d.innerText=i+1;
+    d.onclick=()=>{idx=i;load();}
+    nav.appendChild(d);
+  });
 }
 
-/* ===== LOAD QUESTION ===== */
+/* ===== LOAD ===== */
 function load(){
-document.getElementById("nextBtn").classList.add("hidden");
-document.getElementById("finishBtn").classList.add("hidden");
+  document.getElementById("nextBtn").classList.add("hidden");
+  document.getElementById("finishBtn").classList.add("hidden");
+  document.getElementById("qtext").innerText=`Câu ${idx+1}: ${questions[idx].q}`;
 
-document.getElementById("qtext").innerText=`Câu ${idx+1}: ${questions[idx].q}`;
-const box=document.getElementById("answers");
-box.innerHTML="";
+  const box=document.getElementById("answers");
+  box.innerHTML="";
 
-questions[idx].a.forEach((t,i)=>{
-let b=document.createElement("button");
-b.innerText=t;
-if(answers[idx]===i) b.classList.add("selected");
-b.onclick=()=>select(i);
-box.appendChild(b);
-});
+  questions[idx].a.forEach((t,i)=>{
+    let b=document.createElement("button");
+    b.className="answer";
+    b.innerText=t;
+    if(answers[idx]===i) b.classList.add("selected");
+    b.onclick=()=>select(i);
+    box.appendChild(b);
+  });
 
-if(idx===questions.length-1 && answers.filter(a=>a!==undefined).length===questions.length){
-document.getElementById("finishBtn").classList.remove("hidden");
-}
+  if(answers.filter(a=>a!==undefined).length===questions.length){
+    document.getElementById("finishBtn").classList.remove("hidden");
+  }
 }
 
 /* ===== SELECT ===== */
 function select(i){
-answers[idx]=i;
-updateNav();
-document.getElementById("nextBtn").classList.remove("hidden");
+  answers[idx]=i;
+  document.getElementById("clickSound").play();
+  document.querySelectorAll(".answer").forEach(b=>b.classList.remove("selected"));
+  document.querySelectorAll(".answer")[i].classList.add("selected");
+  updateNav();
+  document.getElementById("nextBtn").classList.remove("hidden");
 }
 
 /* ===== NEXT ===== */
 function next(){
-if(answers[idx]===undefined){alert("Chưa chọn đáp án");return;}
-idx++;
-load();
+  if(answers[idx]===undefined){
+    const card=document.getElementById("qtext");
+    card.classList.add("shake");
+    setTimeout(()=>card.classList.remove("shake"),300);
+    return;
+  }
+  idx++;
+  load();
 }
 
 /* ===== NAV COLOR ===== */
 function updateNav(){
-document.querySelectorAll(".nav div").forEach((d,i)=>{
-if(answers[i]!==undefined) d.className="done";
-});
+  document.querySelectorAll(".nav div").forEach((d,i)=>{
+    if(answers[i]!==undefined) d.className="done";
+  });
 }
 
 /* ===== FINISH ===== */
 function finish(auto=false){
-if(!auto && !confirm("Bạn xác nhận đã hoàn thành bài làm?")) return;
-clearInterval(timer);
+  if(!auto && !confirm("Xác nhận hoàn thành bài làm?")) return;
+  clearInterval(timer);
 
-let correct=[], wrong=[], score=0;
-questions.forEach((q,i)=>{
-if(answers[i]===q.c){score++;correct.push(i);}
-else wrong.push(i);
-});
+  let score=0;
+  let html=`<h2>KẾT QUẢ</h2>
+  <p><b>Người làm bài:</b> ${name}</p>`;
 
-let html=`<h2>KẾT QUẢ</h2>
-<p><b>Người làm bài:</b> ${name}</p>
-<p><b>Số câu đúng:</b> ${score}/${questions.length}</p>
-<h3>Chi tiết</h3>
-<div class="nav">`;
+  html+=`<div class="nav">`;
+  questions.forEach((q,i)=>{
+    let c=answers[i]===q.c?"correct":"wrong";
+    if(answers[i]===q.c) score++;
+    html+=`<div class="${c}">${i+1}</div>`;
+  });
+  html+=`</div><p><b>Đúng:</b> ${score}/${questions.length}</p>`;
 
-questions.forEach((_,i)=>{
-let c=answers[i]===questions[i].c?"correct":"wrong";
-html+=`<div class="${c}">${i+1}</div>`;
-});
-html+=`</div>
-<button class="primary" onclick="retry(false)">Làm lại câu sai (không đảo)</button>
-<button class="gray" onclick="retry(true)">Làm lại câu sai (đảo đáp án)</button>`;
-
-document.getElementById("quiz").classList.add("hidden");
-document.getElementById("result").innerHTML=html;
-document.getElementById("result").classList.remove("hidden");
-}
-
-/* ===== RETRY WRONG ===== */
-function retry(shuffle){
-let newQ=[];
-questions.forEach((q,i)=>{
-if(answers[i]!==q.c){
-let nq={...q};
-if(shuffle) nq.a=[...q.a].sort(()=>Math.random()-0.5);
-newQ.push(nq);
-}
-});
-if(newQ.length===0){alert("Không còn câu sai");return;}
-location.reload();
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").innerHTML=html;
+  document.getElementById("result").classList.remove("hidden");
 }
 </script>
 </body>
