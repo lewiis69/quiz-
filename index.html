@@ -1,119 +1,142 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Trắc nghiệm Pháp luật</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f7;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .question {
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 18px;
-      color: green;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Trắc nghiệm Pháp luật</title>
+<style>
+body{font-family:Arial;background:#f2f4f7;padding:20px}
+.container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:8px}
+.question{margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #ddd}
+.correct{color:green;font-weight:bold}
+.wrong{color:red;font-weight:bold}
+button{padding:10px 20px;font-size:16px}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Trắc nghiệm Pháp luật</h1>
-
-    <div id="quiz"></div>
-
-    <button onclick="submitQuiz()">Nộp bài</button>
-
-    <div class="result" id="result"></div>
-  </div>
+<div class="container">
+<h1>Trắc nghiệm Pháp luật (30 câu)</h1>
+<div id="quiz"></div>
+<button onclick="submitQuiz()">Nộp bài</button>
+</div>
 
 <script>
 const questions = [
-  {
-    question: "Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước CHXHCN Việt Nam?",
-    answers: [
-      "Tập trung dân chủ",
-      "Đảng lãnh đạo",
-      "Công khai, minh bạch",
-      "Bình đẳng, đoàn kết dân tộc"
-    ],
-    correct: 3
-  },
-  {
-    question: "Cơ quan quyền lực nhà nước cao nhất của nước CHXHCN Việt Nam là?",
-    answers: [
-      "Chính phủ",
-      "Chủ tịch nước",
-      "Quốc hội",
-      "Bộ Chính trị"
-    ],
-    correct: 2
-  },
-  {
-    question: "Cơ quan nào thực hiện quyền tư pháp?",
-    answers: [
-      "Bộ Tư pháp",
-      "Tòa án nhân dân",
-      "Chính phủ",
-      "Ủy ban nhân dân"
-    ],
-    correct: 1
-  }
+{q:"Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước CHXHCN Việt Nam?",
+a:["Tập trung dân chủ","Đảng lãnh đạo","Công khai minh bạch","Bình đẳng đoàn kết dân tộc"],c:2},
+
+{q:"Cơ quan quyền lực nhà nước cao nhất của Việt Nam là?",
+a:["Chính phủ","Chủ tịch nước","Quốc hội","Bộ Chính trị"],c:2},
+
+{q:"Cơ quan quyền lực nhà nước ở địa phương là?",
+a:["UBND","HĐND","MTTQ","TAND"],c:1},
+
+{q:"Cơ quan thực hiện quyền tư pháp là?",
+a:["Bộ Tư pháp","TAND","VKSND","UBND"],c:1},
+
+{q:"Chức năng cơ bản của Nhà nước Việt Nam là?",
+a:["Quản lý KT","Giữ TT","Ngoại giao","Đối nội và đối ngoại"],c:3},
+
+{q:"UBND TP.HCM do cơ quan nào bầu ra?",
+a:["Chính phủ","HĐND TP.HCM","Chủ tịch nước","Quốc hội"],c:1},
+
+{q:"Cơ quan hành chính nhà nước gồm?",
+a:["HĐND+UBND","CP+HĐND","CP+UBND","HĐND+MTTQ"],c:2},
+
+{q:"Hệ thống pháp luật gồm bao nhiêu thành tố?",
+a:["2","3","4","5"],c:1},
+
+{q:"Quy phạm pháp luật có bao nhiêu bộ phận?",
+a:["2","3","4","5"],c:1},
+
+{q:"Bộ phận dự kiến hoàn cảnh xảy ra gọi là?",
+a:["Quy định","Giả định","Chế tài","Chế định"],c:1},
+
+{q:"Bộ phận nêu cách xử sự gọi là?",
+a:["Quy định","Giả định","Chế tài","Chế định"],c:0},
+
+{q:"Văn bản có giá trị pháp lý cao nhất?",
+a:["Luật","Nghị quyết","Hiến pháp","Quyết định"],c:2},
+
+{q:"Văn bản có hiệu lực chỉ sau Hiến pháp?",
+a:["CTN","Nghị quyết","Luật","TTCP"],c:2},
+
+{q:"Người đứng đầu Nhà nước Việt Nam?",
+a:["TBT","Chủ tịch nước","Thủ tướng","CTQH"],c:1},
+
+{q:"Khẳng định đúng?",
+a:["CP giám sát","QH giữ 3 quyền","HĐND do dân bầu","UBND do dân bầu"],c:2},
+
+{q:"Cơ quan lập ra Chính phủ?",
+a:["Quốc hội","UBTVQH","VPCN","Sai"],c:0},
+
+{q:"Cơ quan thực hiện quyền công tố?",
+a:["QH","CP","VKSND","TAND"],c:2},
+
+{q:"Người đứng đầu Chính phủ?",
+a:["CTN","Thủ tướng","TBT","CTQH"],c:1},
+
+{q:"Phát biểu đúng?",
+a:["QH ban hành mọi VB","CP quyền lực cao nhất","CP là CQ chấp hành","HĐND là CQHC"],c:2},
+
+{q:"Nhiệm kỳ Quốc hội?",
+a:["5 năm – 2 kỳ","5 năm – 3 kỳ","10 năm – 2 kỳ","10 năm – 3 kỳ"],c:0},
+
+{q:"Liên minh giai cấp nền tảng?",
+a:["CN-ND-TM","CN-ND-BS","CN-ND-TT","ND-BS-TT"],c:2},
+
+{q:"Cơ sở chính trị của CQND?",
+a:["MTTQ","ĐCSVN","Nhà nước","QH"],c:0},
+
+{q:"Nguyên tắc tôn trọng pháp luật?",
+a:["ND làm chủ","Tập trung DC","Pháp chế XHCN","Đảng lãnh đạo"],c:2},
+
+{q:"CQ quyền lực nhà nước gồm?",
+a:["QH+HĐND","QH+UBND","CP+HĐND","CP+UBND"],c:0},
+
+{q:"Tập hợp quy phạm cùng loại?",
+a:["QPPL","Chế định","Ngành luật","HTPL"],c:1},
+
+{q:"Kinh tế giữ vai trò chủ đạo?",
+a:["Tư nhân","Tập thể","Nhà nước","FDI"],c:2},
+
+{q:"Xác định công dân VN?",
+a:["Cha mẹ","Nơi sinh","Quốc tịch","Nơi ở"],c:2},
+
+{q:"Lập–Hành–Tư pháp?",
+a:["CP-QH-TA","QH-TA-CP","QH-CP-TA","TA-CP-QH"],c:3},
+
+{q:"Phát biểu sai?",
+a:["ĐCSVN lãnh đạo","Đảng theo PL","QLNN phân chia","QLNN thống nhất"],c:2},
+
+{q:"Quy phạm: Kết hôn phải đăng ký gồm?",
+a:["Giả định","Quy định","QD+CT","GĐ+QĐ"],c:3}
 ];
 
-const quizDiv = document.getElementById("quiz");
+const quiz=document.getElementById("quiz");
 
-questions.forEach((q, index) => {
-  let html = `<div class="question">
-    <p><strong>Câu ${index + 1}:</strong> ${q.question}</p>`;
-  q.answers.forEach((ans, i) => {
-    html += `
-      <label>
-        <input type="radio" name="q${index}" value="${i}">
-        ${ans}
-      </label><br>`;
-  });
-  html += "</div>";
-  quizDiv.innerHTML += html;
+questions.forEach((q,i)=>{
+let html=`<div class="question"><b>Câu ${i+1}:</b> ${q.q}<br>`;
+q.a.forEach((ans,j)=>{
+html+=`<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label><br>`;
+});
+html+=`<div id="fb${i}"></div></div>`;
+quiz.innerHTML+=html;
 });
 
-function submitQuiz() {
-  let score = 0;
-  questions.forEach((q, index) => {
-    const selected = document.querySelector(
-      `input[name="q${index}"]:checked`
-    );
-    if (selected && parseInt(selected.value) === q.correct) {
-      score++;
-    }
-  });
-
-  document.getElementById("result").innerText =
-    `Bạn làm đúng ${score} / ${questions.length} câu`;
+function submitQuiz(){
+questions.forEach((q,i)=>{
+let s=document.querySelector(`input[name="q${i}"]:checked`);
+let fb=document.getElementById(`fb${i}`);
+if(!s){fb.innerHTML=""; return;}
+if(parseInt(s.value)===q.c){
+fb.innerHTML="🎉 <span class='correct'>Chúc mừng bạn đã làm đúng!</span>";
+}else{
+fb.innerHTML=`❌ <span class='wrong'>Sai rồi. Đáp án đúng là: ${String.fromCharCode(65+q.c)}</span>`;
+}
+});
 }
 </script>
-
 </body>
 </html>
 
