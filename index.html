@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ thống thi trắc nghiệm</title>
+<title>Thi trắc nghiệm Pháp luật</title>
 
 <style>
 :root{
@@ -12,277 +12,262 @@
   --wrong:#dc2626;
   --bg:#f1f5f9;
 }
-
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont;
-  background:var(--bg);
-}
-
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:16px;
-}
-
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:16px;
-  margin-bottom:12px;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-}
-
+body{margin:0;font-family:system-ui;background:var(--bg)}
+.container{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;
+box-shadow:0 6px 16px rgba(0,0,0,.08)}
 .hidden{display:none}
-
-input{
-  width:100%;
-  padding:14px;
-  font-size:16px;
-  border-radius:12px;
-  border:1px solid #ccc;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border-radius:14px;
-  border:2px solid #cbd5e1;
-  background:#f8fafc;
-  font-size:16px;
-  cursor:pointer;
-  transition:.2s;
-}
-
-button:active{transform:scale(.97)}
-
-.primary{
-  background:var(--primary);
-  color:#fff;
-  border:none;
-}
-
-.answer{
-  text-align:left;
-  animation:fadeIn .2s ease;
-}
-
-.answer.selected{
-  border:3px solid var(--primary);
-  background:#eff6ff;
-  font-weight:600;
-}
-
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(5px)}
-  to{opacity:1;transform:none}
-}
-
-.shake{
-  animation:shake .3s;
-}
-
-@keyframes shake{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-5px)}
-  50%{transform:translateX(5px)}
-  75%{transform:translateX(-5px)}
-  100%{transform:translateX(0)}
-}
-
-.timer{
-  font-weight:bold;
-  color:#dc2626;
-  margin-bottom:10px;
-}
-
-.nav{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:6px;
-}
-
-.nav div{
-  padding:8px;
-  border-radius:8px;
-  background:#e5e7eb;
-  text-align:center;
-  font-size:14px;
-}
-
+input{width:100%;padding:14px;font-size:16px;border-radius:12px;border:1px solid #ccc}
+button{width:100%;padding:14px;margin-top:10px;border-radius:14px;
+border:2px solid #cbd5e1;background:#f8fafc;font-size:16px;cursor:pointer}
+.primary{background:var(--primary);color:#fff;border:none}
+.answer{text-align:left}
+.answer.selected{border:3px solid var(--primary);background:#eff6ff;font-weight:600}
+.timer{font-weight:bold;color:#dc2626;margin-bottom:10px}
+.nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.nav div{padding:8px;border-radius:8px;background:#e5e7eb;text-align:center;font-size:14px}
 .nav .done{background:#93c5fd}
 .nav .correct{background:#4ade80}
 .nav .wrong{background:#f87171}
-
-@media(max-width:600px){
-  .nav{grid-template-columns:repeat(5,1fr)}
-}
+@media(max-width:600px){.nav{grid-template-columns:repeat(5,1fr)}}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<!-- START -->
 <div id="start" class="card">
-  <h2>Nhập tên người làm bài</h2>
-  <input id="username" placeholder="Họ và tên">
-  <button class="primary" onclick="start()">Bắt đầu làm bài</button>
+<h2>Nhập tên người làm bài</h2>
+<input id="username" placeholder="Họ và tên">
+<button class="primary" onclick="start()">Bắt đầu làm bài</button>
 </div>
 
-<!-- QUIZ -->
 <div id="quiz" class="hidden">
+<div class="card">
+<div class="timer">⏱ Thời gian còn lại: <span id="time"></span></div>
+<div class="nav" id="nav"></div>
+</div>
 
 <div class="card">
-  <div class="timer">⏱ Thời gian còn lại: <span id="time"></span></div>
-  <div class="nav" id="nav"></div>
+<h3 id="qtext"></h3>
+<div id="answers"></div>
+<button id="nextBtn" class="primary hidden" onclick="next()">Câu tiếp theo</button>
+<button id="finishBtn" class="primary hidden" onclick="finish()">Hoàn thành bài</button>
+</div>
 </div>
 
-<div class="card">
-  <h3 id="qtext"></h3>
-  <div id="answers"></div>
-  <button id="nextBtn" class="primary hidden" onclick="next()">Câu tiếp theo</button>
-  <button id="finishBtn" class="primary hidden" onclick="finish()">Hoàn thành bài</button>
-</div>
-
-</div>
-
-<!-- RESULT -->
 <div id="result" class="hidden card"></div>
 
 </div>
 
-<audio id="clickSound">
-  <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg">
-</audio>
-
 <script>
-/* ====== CÂU HỎI (BẠN DÁN ĐỦ 30 CÂU VÀO ĐÂY) ====== */
 const questions = [
-{
-  q:"Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam?",
-  a:["Tập trung dân chủ","Đảng lãnh đạo","Công khai minh bạch","Bình đẳng, đoàn kết dân tộc"],
-  c:2
-},
-{
-  q:"Cơ quan quyền lực nhà nước cao nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
-  a:["Chính phủ","Chủ tịch nước","Quốc hội","Bộ Chính trị"],
-  c:2
-}
+{q:"Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam?",
+a:["Tập trung dân chủ","Đảng lãnh đạo","Công khai minh bạch","Bình đẳng, đoàn kết dân tộc"],c:2},
+
+{q:"Cơ quan quyền lực nhà nước cao nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+a:["Chính phủ","Chủ tịch nước","Quốc hội","Bộ Chính trị"],c:2},
+
+{q:"Đâu là cơ quan quyền lực nhà nước ở địa phương, đại diện ý chí, nguyện vọng và quyền làm chủ của nhân dân, do nhân dân địa phương bầu ra:",
+a:["Ủy ban nhân dân","Hội đồng nhân dân","Ủy ban Mặt trận Tổ quốc Việt Nam","Tòa án nhân dân"],c:1},
+
+{q:"Cơ quan nào của Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam thực hiện quyền tư pháp:",
+a:["Bộ Tư pháp","Tòa án nhân dân các cấp","Viện kiểm sát nhân dân các cấp","Ủy ban nhân dân các cấp"],c:1},
+
+{q:"Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam có chức năng cơ bản là:",
+a:["Bảo đảm trật tự an toàn xã hội","Tổ chức và quản lý nền kinh tế",
+"Thiết lập mối quan hệ ngoại giao","Đối nội và đối ngoại"],c:3},
+
+{q:"Ủy ban nhân dân Thành phố Hồ Chí Minh do cơ quan nào bầu ra:",
+a:["Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam",
+"Hội đồng nhân dân Thành phố Hồ Chí Minh",
+"Chủ tịch nước Cộng hòa xã hội chủ nghĩa Việt Nam",
+"Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam"],c:1},
+
+{q:"Cơ quan hành chính nhà nước gồm:",
+a:["Hội đồng nhân dân và Ủy ban nhân dân các cấp",
+"Chính phủ và Hội đồng nhân dân các cấp",
+"Chính phủ và Ủy ban nhân dân các cấp",
+"Hội đồng nhân dân và Ủy ban Mặt trận Tổ quốc các cấp"],c:2},
+
+{q:"Hệ thống pháp luật gồm bao nhiêu thành tố:",
+a:["02","03","04","05"],c:1},
+
+{q:"Cấu trúc của quy phạm pháp luật có bao nhiêu bộ phận:",
+a:["2","3","4","5"],c:1},
+
+{q:"Trong quy phạm pháp luật, bộ phận nào dự kiến những điều kiện, hoàn cảnh xảy ra trong cuộc sống:",
+a:["Quy định","Giả định","Chế tài","Chế định"],c:1},
+
+{q:"Trong quy phạm pháp luật, bộ phận nào nêu lên cách xử sự mà chủ thể được, không được hoặc buộc phải thực hiện:",
+a:["Quy định","Giả định","Chế tài","Chế định"],c:0},
+
+{q:"Trong hệ thống văn bản quy phạm pháp luật, văn bản nào có giá trị pháp lý cao nhất:",
+a:["Lệnh, quyết định của Chủ tịch nước","Bộ luật, luật","Hiến pháp",
+"Nghị quyết của Hội đồng Thẩm phán Tòa án nhân dân tối cao"],c:2},
+
+{q:"Văn bản nào sau đây có giá trị pháp lý cao chỉ sau Hiến pháp:",
+a:["Lệnh, quyết định của Chủ tịch nước",
+"Nghị quyết của Hội đồng Thẩm phán Tòa án nhân dân tối cao",
+"Luật","Quyết định của Thủ tướng Chính phủ"],c:2},
+
+{q:"Ai là người đứng đầu Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam:",
+a:["Tổng Bí thư","Chủ tịch nước","Thủ tướng Chính phủ","Chủ tịch Quốc hội"],c:1},
+
+{q:"Khi nghiên cứu về bộ máy nhà nước Việt Nam, khẳng định nào sau đây là đúng:",
+a:["Chính phủ giám sát toàn bộ hoạt động nhà nước",
+"Quốc hội giữ cả ba quyền",
+"Hội đồng nhân dân do nhân dân trực tiếp bầu ra",
+"Ủy ban nhân dân do nhân dân trực tiếp bầu ra"],c:2},
+
+{q:"Trong bộ máy nhà nước Việt Nam, cơ quan nào lập ra Chính phủ:",
+a:["Quốc hội","Ủy ban Thường vụ Quốc hội","Văn phòng Chủ tịch nước","Tất cả đều sai"],c:0},
+
+{q:"Cơ quan nào thực hiện quyền công tố và kiểm sát hoạt động tư pháp:",
+a:["Quốc hội","Chính phủ","Viện kiểm sát nhân dân các cấp","Tòa án nhân dân các cấp"],c:2},
+
+{q:"Người đứng đầu Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+a:["Chủ tịch nước","Thủ tướng","Tổng Bí thư","Chủ tịch Quốc hội"],c:1},
+
+{q:"Phát biểu nào sau đây là đúng:",
+a:["Quốc hội ban hành tất cả các văn bản quy phạm pháp luật",
+"Chính phủ là cơ quan quyền lực nhà nước cao nhất",
+"Chính phủ là cơ quan chấp hành và điều hành",
+"Hội đồng nhân dân là cơ quan hành chính ở địa phương"],c:2},
+
+{q:"Nhiệm kỳ của Quốc hội là mấy năm và mỗi năm họp mấy kỳ:",
+a:["5 năm và 2 kỳ","5 năm và 3 kỳ","10 năm và 2 kỳ","10 năm và 3 kỳ"],c:0},
+
+{q:"Theo Hiến pháp năm 2013, bản chất Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam lấy liên minh giai cấp nào làm nền tảng:",
+a:["Nông dân với công nhân và thương nhân",
+"Công nhân với nông dân và binh sĩ",
+"Công nhân với nông dân và đội ngũ trí thức",
+"Nông dân với binh sĩ và đội ngũ trí thức"],c:2},
+
+{q:"Theo Hiến pháp năm 2013, trong chế độ chính trị, cơ quan nào đóng vai trò là cơ sở chính trị của chính quyền nhân dân:",
+a:["Mặt trận Tổ quốc Việt Nam và các tổ chức thành viên",
+"Đảng Cộng sản Việt Nam",
+"Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam",
+"Quốc hội"],c:0},
+
+{q:"Nội dung nào sau đây thuộc nguyên tắc pháp chế xã hội chủ nghĩa:",
+a:["Tất cả quyền lực thuộc về nhân dân",
+"Tập trung dân chủ",
+"Tuân thủ pháp luật, tăng cường kiểm tra giám sát",
+"Đảng lãnh đạo"],c:2},
+
+{q:"Cơ quan quyền lực nhà nước bao gồm:",
+a:["Quốc hội và Hội đồng nhân dân các cấp",
+"Quốc hội và Ủy ban nhân dân các cấp",
+"Chính phủ và Hội đồng nhân dân các cấp",
+"Chính phủ và Ủy ban nhân dân các cấp"],c:0},
+
+{q:"Tập hợp các quy phạm pháp luật có đặc điểm giống nhau để điều chỉnh nhóm quan hệ xã hội tương ứng được gọi là:",
+a:["Quy phạm pháp luật","Chế định pháp luật","Ngành luật","Hệ thống pháp luật"],c:1},
+
+{q:"Thành phần kinh tế nào giữ vai trò chủ đạo trong nền kinh tế quốc dân ở nước ta hiện nay:",
+a:["Kinh tế tư nhân","Kinh tế tập thể","Kinh tế nhà nước","Kinh tế có vốn đầu tư nước ngoài"],c:2},
+
+{q:"Căn cứ nào để xác định một người là công dân Việt Nam:",
+a:["Có cha hoặc mẹ là người Việt Nam",
+"Được sinh ra tại Việt Nam",
+"Có quốc tịch Việt Nam",
+"Đang sinh sống tại Việt Nam"],c:2},
+
+{q:"Ba cơ quan thực hiện quyền lập pháp – hành pháp – tư pháp tương ứng là:",
+a:["Chính phủ – Quốc hội – Tòa án",
+"Quốc hội – Tòa án – Chính phủ",
+"Quốc hội – Chính phủ – Tòa án",
+"Tòa án – Chính phủ – Quốc hội"],c:3},
+
+{q:"Phát biểu nào sau đây là sai:",
+a:["Đảng Cộng sản Việt Nam là lực lượng lãnh đạo Nhà nước và xã hội",
+"Đảng hoạt động trong khuôn khổ Hiến pháp và pháp luật",
+"Quyền lực nhà nước có sự phân chia",
+"Quyền lực nhà nước là thống nhất"],c:2},
+
+{q:"Quy phạm pháp luật: “Việc kết hôn phải được đăng ký tại cơ quan nhà nước có thẩm quyền” bao gồm các bộ phận:",
+a:["Giả định","Quy định","Quy định và chế tài","Giả định và quy định"],c:3}
 ];
 
-/* ===== BIẾN ===== */
-let name="", idx=0, answers=[];
-let startTime, timer;
+let idx=0, answers=[], startTime, timer;
 const totalTime = questions.length * 180;
 
-/* ===== START ===== */
 function start(){
-  name=document.getElementById("username").value.trim();
-  if(!name){alert("Vui lòng nhập tên");return;}
-  startTime=Date.now();
-  document.getElementById("start").classList.add("hidden");
-  document.getElementById("quiz").classList.remove("hidden");
-  buildNav();
-  load();
-  countdown();
+const name=document.getElementById("username").value.trim();
+if(!name){alert("Vui lòng nhập tên");return;}
+startTime=Date.now();
+document.getElementById("start").classList.add("hidden");
+document.getElementById("quiz").classList.remove("hidden");
+buildNav(); load(); countdown();
 }
 
-/* ===== TIMER ===== */
 function countdown(){
-  timer=setInterval(()=>{
-    let left=totalTime-Math.floor((Date.now()-startTime)/1000);
-    document.getElementById("time").innerText=
-      Math.floor(left/60)+":"+String(left%60).padStart(2,"0");
-    if(left<=0){clearInterval(timer);finish(true);}
-  },1000);
+timer=setInterval(()=>{
+let left=totalTime-Math.floor((Date.now()-startTime)/1000);
+document.getElementById("time").innerText=
+Math.floor(left/60)+":"+String(left%60).padStart(2,"0");
+if(left<=0){clearInterval(timer);finish();}
+},1000);
 }
 
-/* ===== NAV ===== */
 function buildNav(){
-  const nav=document.getElementById("nav");
-  nav.innerHTML="";
-  questions.forEach((_,i)=>{
-    let d=document.createElement("div");
-    d.innerText=i+1;
-    d.onclick=()=>{idx=i;load();}
-    nav.appendChild(d);
-  });
+const nav=document.getElementById("nav");
+nav.innerHTML="";
+questions.forEach((_,i)=>{
+let d=document.createElement("div");
+d.innerText=i+1;
+d.onclick=()=>{idx=i;load();}
+nav.appendChild(d);
+});
 }
 
-/* ===== LOAD ===== */
 function load(){
-  document.getElementById("nextBtn").classList.add("hidden");
-  document.getElementById("finishBtn").classList.add("hidden");
-  document.getElementById("qtext").innerText=`Câu ${idx+1}: ${questions[idx].q}`;
-
-  const box=document.getElementById("answers");
-  box.innerHTML="";
-
-  questions[idx].a.forEach((t,i)=>{
-    let b=document.createElement("button");
-    b.className="answer";
-    b.innerText=t;
-    if(answers[idx]===i) b.classList.add("selected");
-    b.onclick=()=>select(i);
-    box.appendChild(b);
-  });
-
-  if(answers.filter(a=>a!==undefined).length===questions.length){
-    document.getElementById("finishBtn").classList.remove("hidden");
-  }
+document.getElementById("nextBtn").classList.add("hidden");
+document.getElementById("finishBtn").classList.add("hidden");
+document.getElementById("qtext").innerText=`Câu ${idx+1}: ${questions[idx].q}`;
+const box=document.getElementById("answers");
+box.innerHTML="";
+questions[idx].a.forEach((t,i)=>{
+let b=document.createElement("button");
+b.className="answer";
+b.innerText=t;
+if(answers[idx]===i) b.classList.add("selected");
+b.onclick=()=>select(i);
+box.appendChild(b);
+});
+if(answers.filter(a=>a!==undefined).length===questions.length)
+document.getElementById("finishBtn").classList.remove("hidden");
 }
 
-/* ===== SELECT ===== */
 function select(i){
-  answers[idx]=i;
-  document.getElementById("clickSound").play();
-  document.querySelectorAll(".answer").forEach(b=>b.classList.remove("selected"));
-  document.querySelectorAll(".answer")[i].classList.add("selected");
-  updateNav();
-  document.getElementById("nextBtn").classList.remove("hidden");
+answers[idx]=i;
+document.querySelectorAll(".answer").forEach(b=>b.classList.remove("selected"));
+document.querySelectorAll(".answer")[i].classList.add("selected");
+updateNav();
+document.getElementById("nextBtn").classList.remove("hidden");
 }
 
-/* ===== NEXT ===== */
-function next(){
-  if(answers[idx]===undefined){
-    const card=document.getElementById("qtext");
-    card.classList.add("shake");
-    setTimeout(()=>card.classList.remove("shake"),300);
-    return;
-  }
-  idx++;
-  load();
-}
+function next(){ if(answers[idx]===undefined)return; idx++; load(); }
 
-/* ===== NAV COLOR ===== */
 function updateNav(){
-  document.querySelectorAll(".nav div").forEach((d,i)=>{
-    if(answers[i]!==undefined) d.className="done";
-  });
+document.querySelectorAll(".nav div").forEach((d,i)=>{
+if(answers[i]!==undefined) d.className="done";
+});
 }
 
-/* ===== FINISH ===== */
-function finish(auto=false){
-  if(!auto && !confirm("Xác nhận hoàn thành bài làm?")) return;
-  clearInterval(timer);
-
-  let score=0;
-  let html=`<h2>KẾT QUẢ</h2>
-  <p><b>Người làm bài:</b> ${name}</p>`;
-
-  html+=`<div class="nav">`;
-  questions.forEach((q,i)=>{
-    let c=answers[i]===q.c?"correct":"wrong";
-    if(answers[i]===q.c) score++;
-    html+=`<div class="${c}">${i+1}</div>`;
-  });
-  html+=`</div><p><b>Đúng:</b> ${score}/${questions.length}</p>`;
-
-  document.getElementById("quiz").classList.add("hidden");
-  document.getElementById("result").innerHTML=html;
-  document.getElementById("result").classList.remove("hidden");
+function finish(){
+clearInterval(timer);
+let score=0, html="<h2>KẾT QUẢ</h2><div class='nav'>";
+questions.forEach((q,i)=>{
+let c=answers[i]===q.c?"correct":"wrong";
+if(answers[i]===q.c) score++;
+html+=`<div class='${c}'>${i+1}</div>`;
+});
+html+=`</div><p><b>Đúng:</b> ${score}/${questions.length}</p>`;
+document.getElementById("quiz").classList.add("hidden");
+document.getElementById("result").innerHTML=html;
+document.getElementById("result").classList.remove("hidden");
 }
 </script>
 </body>
