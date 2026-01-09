@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Trắc nghiệm Pháp luật</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f7;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Trắc nghiệm Pháp luật</h1>
+
+    <div id="quiz"></div>
+
+    <button onclick="submitQuiz()">Nộp bài</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+const questions = [
+  {
+    question: "Đâu không phải là nguyên tắc tổ chức và hoạt động của bộ máy Nhà nước CHXHCN Việt Nam?",
+    answers: [
+      "Tập trung dân chủ",
+      "Đảng lãnh đạo",
+      "Công khai, minh bạch",
+      "Bình đẳng, đoàn kết dân tộc"
+    ],
+    correct: 3
+  },
+  {
+    question: "Cơ quan quyền lực nhà nước cao nhất của nước CHXHCN Việt Nam là?",
+    answers: [
+      "Chính phủ",
+      "Chủ tịch nước",
+      "Quốc hội",
+      "Bộ Chính trị"
+    ],
+    correct: 2
+  },
+  {
+    question: "Cơ quan nào thực hiện quyền tư pháp?",
+    answers: [
+      "Bộ Tư pháp",
+      "Tòa án nhân dân",
+      "Chính phủ",
+      "Ủy ban nhân dân"
+    ],
+    correct: 1
+  }
+];
+
+const quizDiv = document.getElementById("quiz");
+
+questions.forEach((q, index) => {
+  let html = `<div class="question">
+    <p><strong>Câu ${index + 1}:</strong> ${q.question}</p>`;
+  q.answers.forEach((ans, i) => {
+    html += `
+      <label>
+        <input type="radio" name="q${index}" value="${i}">
+        ${ans}
+      </label><br>`;
+  });
+  html += "</div>";
+  quizDiv.innerHTML += html;
+});
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach((q, index) => {
+    const selected = document.querySelector(
+      `input[name="q${index}"]:checked`
+    );
+    if (selected && parseInt(selected.value) === q.correct) {
+      score++;
+    }
+  });
+
+  document.getElementById("result").innerText =
+    `Bạn làm đúng ${score} / ${questions.length} câu`;
+}
+</script>
+
+</body>
+</html>
+
